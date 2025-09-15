@@ -1,0 +1,14 @@
+Data disimpan oleh: 23106050081
+Waktu penyimpanan: 2025-09-15 08:58:42
+--------------------------------------------------
+BIODATA TERSIMPAN:
+Diinput oleh: 23106050081
+
+Nama: Hanif Ubaidur Rohman Syah
+NIM: 23106050081
+Jurusan: Informatika
+Email: hanifurohman05@gmail.com
+Telepon: 087775524661
+Tanggal Lahir: 10-09-2005
+Alamat: Jl Merdeka Rt 06, Muara Kelingi, Musi Rawas, Sumatera Selatan
+Jenis Kelamin: Pria

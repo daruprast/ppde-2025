@@ -197,7 +197,7 @@ class AplikasiBiodata(tk.Tk):
         about_message = (
             f"Aplikasi Biodata Mahasiswa v{self.__version__}\n\n"
             "Dibuat oleh:\n"
-            "Hanif Ubaidur Rohman Syah (NIM: 23106050081)\n\n"
+            "Muhammad Faisal Ramadhan (NIM: 23106050061)\n\n"
             f"Dibuat pada: {datetime.date.today().strftime('%d %B %Y')}\n\n"
             "Aplikasi ini dibuat untuk memenuhi tugas praktikum."
         )

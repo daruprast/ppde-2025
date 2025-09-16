@@ -1,0 +1,14 @@
+Data disimpan oleh: admin
+Waktu penyimpanan: 2025-09-16 23:42:37
+--------------------------------------------------
+BIODATA TERSIMPAN:
+Diinput oleh: admin
+
+Nama: Ahmad Zidni Hidayat
+NIM: 23106050077
+Jurusan: Informatika
+Email: ahmad@gmail.com
+Telepon: 08122876563
+Tanggal Lahir: 12 Maret 2005
+Alamat: Sleman
+Jenis Kelamin: Pria

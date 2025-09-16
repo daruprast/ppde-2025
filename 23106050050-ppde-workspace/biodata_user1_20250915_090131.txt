@@ -1,0 +1,11 @@
+Data disimpan oleh: user1
+Waktu penyimpanan: 2025-09-15 09:01:31
+--------------------------------------------------
+BIODATA TERSIMPAN:
+Diinput oleh: user1
+
+Nama: nova
+NIM: 25252525
+Jurusan: IF
+Alamat: test
+Jenis Kelamin: Pria

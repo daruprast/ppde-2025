@@ -1,7 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox
+from datetime import datetime
 import datetime
 import logging
+import os, re
+
+# File untuk menyimpan username terakhir
+USER_FILE = "last_user.txt"
 
 # Setup logging
 logging.basicConfig(
@@ -47,6 +52,8 @@ class AplikasiBiodata(tk.Tk):
         # Log aplikasi start
         logging.info("Aplikasi dimulai")
 
+        self.bind("<Escape>", lambda e: self._buat_menu())
+
     #Fungsi untuk validasi form secara real-time
     def submit_data(self):
         """Submit data biodata dengan validasi lengkap"""
@@ -62,6 +69,9 @@ class AplikasiBiodata(tk.Tk):
             jurusan = self.entry_jurusan.get()
             alamat = self.text_alamat.get("1.0", tk.END).strip()
             jenis_kelamin = self.var_jk.get()
+            email = self.entry_email.get()
+            telp = self.entry_telp.get()
+            birth = self.entry_birth.get()
 
             # Cek field kosong
             if not nama or not nim or not jurusan:
@@ -79,9 +89,24 @@ class AplikasiBiodata(tk.Tk):
                 messagebox.showwarning("Format Nama Salah", "Nama tidak boleh hanya berupa angka!")
                 self.entry_nama.focus_set()
                 return
+            
+            # Validasi format email
+            if not self.validate_email(email):
+                messagebox.showwarning("Error", "Format email tidak valid!")
+                return
         
+            # Validasi format telepon
+            if not self.validate_telp(telp):
+                messagebox.showwarning("Error", "Format telepon tidak valid! Gunakan format Indonesia (misal: 08123456789 atau +628123456789).")
+                return
+            
+            # Validasi format tanggal lahir
+            if not self.validate_birth(birth):
+                messagebox.showwarning("Error", "Format tanggal lahir tidak valid! Gunakan format DD/MM/YYYY.")
+                return
+
             # Tampilkan hasil
-            hasil = f"Nama: {nama}\nNIM: {nim}\nJurusan: {jurusan}\nAlamat: {alamat}\nJenis Kelamin: {jenis_kelamin}"
+            hasil = f"Nama: {nama}\nNIM: {nim}\nJurusan: {jurusan}\nAlamat: {alamat}\nJenis Kelamin: {jenis_kelamin}\nEmail: {email}\nTelepon: {telp}\nTanggal Lahir: {birth}"
             messagebox.showinfo("Data Tersimpan", hasil)
 
             # Tampilkan hasil di label
@@ -95,13 +120,29 @@ class AplikasiBiodata(tk.Tk):
             logging.error(f"Error in submit_data by {self.current_user}: {str(e)}")
             messagebox.showerror("Error", f"Terjadi kesalahan: {e}")
 
+    def validate_email(self, email):
+        return re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email)
+    
+    def validate_telp(self, telp):
+        return re.match(r"^(?:\+62|62|0)8\d{8,11}$", telp)
+
+    def validate_birth(self, birth):
+        try:
+            datetime.strptime(birth, "%d/%m/%Y")
+            return True
+        except ValueError:
+            return False
+
     def validate_form(self, *args):
         nama_valid = self.var_nama.get().strip() != ""
         nim_valid = self.var_nim.get().strip() != ""
         jurusan_valid = self.var_jurusan.get().strip() != ""
         setuju_valid = self.var_setuju.get() == 1
+        email_valid = self.var_email.get().strip() != ""
+        telp_valid = self.var_telp.get().strip() != ""
+        birth_valid = self.var_birth.get().strip() != ""
 
-        if nama_valid and nim_valid and jurusan_valid and setuju_valid:
+        if nama_valid and nim_valid and jurusan_valid and setuju_valid and email_valid and telp_valid and birth_valid:
             self.btn_submit.config(state=tk.NORMAL)
         else:
             self.btn_submit.config(state=tk.DISABLED)
@@ -147,9 +188,17 @@ class AplikasiBiodata(tk.Tk):
         file_menu.add_command(label="Simpan", command=self.simpan_hasil)
         file_menu.add_separator()
         file_menu.add_command(label="Simpan Sebagai", command=self.simpan_hasil)
+
+        edit_menu = tk.Menu(master=menu_bar, tearoff=0)
+        edit_menu.add_command(label="Reset Form", command=self._reset_form_biodata)
+        edit_menu.add_separator()
+        edit_menu.add_command(label="Hapus Menu", command=self._hapus_menu)
+        edit_menu.add_separator()
+        edit_menu.add_command(label="Tampilkan Menu <Esc>", command=self._buat_menu)
         
         menu_bar.add_cascade(label="Home", menu=home_menu)
         menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="Edit", menu=edit_menu)
 
     def _hapus_menu(self):
         """Menghapus menu bar dari window."""
@@ -228,6 +277,14 @@ class AplikasiBiodata(tk.Tk):
             self.entry_password.delete(0, tk.END)
             self.entry_username.focus_set()
 
+        # Simpan username & password terakhir jika checkbox di-check
+        if self.remember_var.get():
+            with open(USER_FILE, "w") as f:
+                f.write(f"{username}\n{password}")
+        else:
+            if os.path.exists(USER_FILE):
+                os.remove(USER_FILE)
+
     def _reset_form_biodata(self):
         """Reset semua field di form biodata"""
         self.var_nama.set("")
@@ -244,6 +301,27 @@ class AplikasiBiodata(tk.Tk):
             self.title(f"Aplikasi Biodata Mahasiswa - User: {self.current_user}")
         else:
             self.title("Aplikasi Biodata Mahasiswa")
+
+    # Method untuk toggle show/hide password
+    def toggle_password(self):
+        """Tampilkan atau sembunyikan password"""
+        if self.show_password:
+            self.entry_password.config(show="*")
+            self.toggle_btn.config(text="Show")
+        else:
+            self.entry_password.config(show="")
+            self.toggle_btn.config(text="Hide")
+        self.show_password = not self.show_password
+
+    def load_username(self):
+        """Muat data username & password terakhir"""
+        if os.path.exists(USER_FILE):
+            with open(USER_FILE, "r") as f:
+                lines = f.readlines()
+                if len(lines) >= 2:
+                    self.entry_username.insert(0, lines[0].strip())
+                    self.entry_password.insert(0, lines[1].strip())
+                    self.remember_var.set(True)
 
     #Halaman login
     def _buat_tampilan_login(self):
@@ -270,7 +348,10 @@ class AplikasiBiodata(tk.Tk):
             bg="lightblue"
         ).grid(row=1, column=0, sticky="W", pady=5)
 
-        self.entry_username = tk.Entry(self.frame_login, font=("Arial", 12))
+        self.entry_username = tk.Entry(
+            self.frame_login,
+            font=("Arial", 12)
+        )
         self.entry_username.grid(row=1, column=1, pady=5, sticky="EW")
 
         # Input Password
@@ -288,6 +369,28 @@ class AplikasiBiodata(tk.Tk):
         )
         self.entry_password.grid(row=2, column=1, pady=5, sticky="EW")
 
+        # Tombol show/hide password
+        self.show_password = False
+        self.toggle_btn = tk.Button(
+            self.frame_login,
+            text = "Show",
+            command = self.toggle_password
+        )
+        self.toggle_btn.grid(row=2, column=2, padx=5)
+
+         # Checkbox Remember Me
+        self.remember_var = tk.BooleanVar()
+        tk.Checkbutton(
+            self.frame_login,
+            text="Remember Me",
+            variable=self.remember_var,
+            bg="lightblue",
+            font=("Arial", 10)
+        ).grid(row=3, column=0, columnspan=1, pady=20, sticky="W")
+
+        # Load username terakhir jika ada
+        self.load_username()
+        
         # Tombol Login
         self.btn_login = tk.Button(
             self.frame_login, 
@@ -296,7 +399,7 @@ class AplikasiBiodata(tk.Tk):
             bg="floralwhite",
             command=self._coba_login
         )
-        self.btn_login.grid(row=3, column=0, columnspan=2, pady=20, sticky="EW")
+        self.btn_login.grid(row=4, column=0, columnspan=3, pady=5, sticky="EW")
 
         # Event bindings untuk hover dan keyboard shortcuts
         self.btn_login.bind("<Enter>", self.on_enter)
@@ -315,7 +418,7 @@ class AplikasiBiodata(tk.Tk):
             bg="lightblue",
             justify=tk.LEFT
         )
-        info_label.grid(row=4, column=0, columnspan=2, pady=10)
+        info_label.grid(row=5, column=0, columnspan=3, pady=10)
 
     #Halaman isi form
     def _buat_tampilan_biodata(self):
@@ -325,11 +428,17 @@ class AplikasiBiodata(tk.Tk):
         self.var_jurusan = tk.StringVar()
         self.var_jk = tk.StringVar(value="Pria")
         self.var_setuju = tk.IntVar()
+        self.var_email = tk.StringVar()
+        self.var_telp = tk.StringVar()
+        self.var_birth = tk.StringVar()
 
         # Aktifkan trace untuk validasi real-time
         self.var_nama.trace_add("write", self.validate_form)
         self.var_nim.trace_add("write", self.validate_form)
         self.var_jurusan.trace_add("write", self.validate_form)
+        self.var_email.trace_add("write", self.validate_form)
+        self.var_telp.trace_add("write", self.validate_form)
+        self.var_birth.trace_add("write", self.validate_form)
 
         # --- Frame Biodata ---
         self.frame_biodata = tk.Frame(master=self, padx=20, pady=20)
@@ -433,16 +542,61 @@ class AplikasiBiodata(tk.Tk):
 
         self.frame_alamat.grid(row=3, column=1, pady=2)
 
+        # Input Email
+        self.label_email = tk.Label(
+            master=self.frame_input, 
+            text="Email:", 
+            font=("Arial", 12)
+        )
+        self.label_email.grid(row=4, column=0, sticky="W", pady=2)
+        self.entry_email = tk.Entry(
+            master=self.frame_input, 
+            width=30, 
+            font=("Arial", 12), 
+            textvariable=self.var_email
+        )
+        self.entry_email.grid(row=4, column=1, pady=2)
+
+        # Input Telepon
+        self.label_telp = tk.Label(
+            master=self.frame_input, 
+            text="Telepon:", 
+            font=("Arial", 12)
+        )
+        self.label_telp.grid(row=5, column=0, sticky="W", pady=2)
+        self.entry_telp = tk.Entry(
+            master=self.frame_input, 
+            width=30, 
+            font=("Arial", 12), 
+            textvariable=self.var_telp
+        )
+        self.entry_telp.grid(row=5, column=1, pady=2)
+
+        # Input TTL
+        self.label_birth = tk.Label(
+            master=self.frame_input, 
+            text="Tanggal Lahir (DD/MM/YYYY):", 
+            font=("Arial", 12)
+        )
+        self.label_birth.grid(row=6, column=0, sticky="W", pady=2)
+        self.entry_birth = tk.Entry(
+            master=self.frame_input, 
+            width=30, 
+            font=("Arial", 12), 
+            textvariable=self.var_birth
+        )
+        self.entry_birth.grid(row=6, column=1, pady=2)
+
         # Jenis kelamin
         self.label_jk = tk.Label(
             master=self.frame_input, 
             text="Jenis Kelamin:", 
             font=("Arial", 12)
         )
-        self.label_jk.grid(row=4, column=0, sticky="W", pady=2)
+        self.label_jk.grid(row=7, column=0, sticky="W", pady=2)
 
         self.frame_jk = tk.Frame(master=self.frame_input)
-        self.frame_jk.grid(row=4, column=1, sticky="W")
+        self.frame_jk.grid(row=7, column=1, sticky="W")
 
         self.radio_pria = tk.Radiobutton(
             master=self.frame_jk, 
@@ -467,7 +621,7 @@ class AplikasiBiodata(tk.Tk):
             font=("Arial", 10),
             command=self.validate_form
         )
-        self.check_setuju.grid(row=5, column=0, columnspan=2, pady=10, sticky="W")
+        self.check_setuju.grid(row=8, column=0, columnspan=2, pady=10, sticky="W")
 
         self.frame_input.grid(row=1, column=0, columnspan=2, sticky="EW")
 
@@ -479,7 +633,7 @@ class AplikasiBiodata(tk.Tk):
             command=self.submit_data,
             state=tk.DISABLED
         )
-        self.btn_submit.grid(row=6, column=0, columnspan=2, pady=20, sticky="EW")
+        self.btn_submit.grid(row=9, column=0, columnspan=2, pady=20, sticky="EW")
 
         # Event bindings untuk hover dan keyboard shortcuts
         self.btn_submit.bind("<Enter>", self.on_enter)
@@ -499,7 +653,7 @@ class AplikasiBiodata(tk.Tk):
             justify=tk.LEFT,
             bg="lightblue"
         )
-        self.label_hasil.grid(row=7, column=0, columnspan=2, sticky="W", padx=10)
+        self.label_hasil.grid(row=10, column=0, columnspan=2, sticky="W", padx=10)
 
         # Membuat menu
         self._buat_menu()

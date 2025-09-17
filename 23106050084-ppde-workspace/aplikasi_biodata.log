@@ -1,0 +1,17 @@
+2025-09-15 08:23:03 - INFO - Aplikasi dimulai
+2025-09-15 08:25:31 - INFO - Aplikasi dimulai
+2025-09-15 08:25:54 - INFO - Login attempt for username: test
+2025-09-15 08:25:54 - WARNING - Failed login attempt for username: test
+2025-09-15 08:26:50 - INFO - Login attempt for username: admin
+2025-09-15 08:26:50 - INFO - Successful login for user: admin
+2025-09-15 08:27:23 - INFO - Data submitted by user: admin - NIM: 111111111
+2025-09-15 08:27:40 - INFO - Data submitted by user: admin - NIM: 123141341421
+2025-09-15 08:29:15 - INFO - Data submitted by user: admin - NIM: 123141341421
+2025-09-15 08:29:20 - INFO - Data submitted by user: admin - NIM: 123141341421
+2025-09-15 08:30:11 - INFO - User logout: admin
+2025-09-15 08:30:38 - INFO - Login attempt for username: user1
+2025-09-15 08:30:38 - INFO - Successful login for user: user1
+2025-09-15 08:30:47 - INFO - Application closed by user: user1
+2025-09-15 08:31:47 - INFO - Aplikasi dimulai
+2025-09-15 08:32:17 - INFO - Login attempt for username: admin
+2025-09-15 08:32:17 - INFO - Successful login for user: admin

@@ -1,0 +1,6 @@
+2025-09-15 08:11:46 - INFO - Aplikasi dimulai
+2025-09-15 08:11:51 - INFO - Login attempt for username: sad
+2025-09-15 08:11:51 - WARNING - Failed login attempt for username: sad
+2025-09-15 08:11:57 - INFO - Login attempt for username: admin
+2025-09-15 08:11:57 - INFO - Successful login for user: admin
+2025-09-15 08:12:27 - INFO - Data submitted by user: admin - NIM: 23106050012
